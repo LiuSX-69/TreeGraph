@@ -1,0 +1,16 @@
+# R related
+.Rhistory
+.RData
+.Ruser
+
+# RStudio
+.Rproj.user/
+*.Rproj
+
+# Temporary files
+*.tmp
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
