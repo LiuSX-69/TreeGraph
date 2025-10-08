@@ -2,7 +2,7 @@ Package: TreeGraph
 Title: Tree Structure Graph Angle Analysis
 Version: 0.1.0
 Authors@R: 
-    person("Your", "Name", email = "your.email@example.com", 
+    person("Mao", "Shanjun", email = "shjmao@hnu.edu.cn", 
            role = c("aut", "cre"))
 Description: Analyze angle statistics in tree-structured graphs with various 
     coverage levels and angle calculation methods.

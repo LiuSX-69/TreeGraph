@@ -10,8 +10,7 @@
 #' @return A list containing various angle statistics
 #' @keywords internal
 anglealpha <- function(data, alpha, start){
-  # 函数内容保持不变（你原来的完整代码）
-  # 这里放置你原来的anglealpha函数的完整代码
+
   data <- data[((data[,1]>start[1])&(data[,2]>start[2])),]
   
   outnum <- floor(dim(data)[1]*(1-alpha))

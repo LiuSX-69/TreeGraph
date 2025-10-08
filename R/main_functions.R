@@ -1,7 +1,7 @@
-#' Tree Graph Angle Analysis
+#' Tree Graph Analysis
 #'
 #' Main function for analyzing angles in tree-structured graphs with customizable
-#' coverage levels and angle calculation methods.
+#' coverage levels, angle calculation methods, and parameter types.
 #'
 #' @param data A matrix or data frame with two columns representing coordinates.
 #'   If NULL, the function will generate simulated data.
@@ -12,7 +12,10 @@
 #' @param angle_method Character string specifying the angle calculation method.
 #'   Options are: "mean", "min", "median", "equal", "neigh". Default is "mean".
 #' @param simulate Logical indicating whether to run simulation. If TRUE, 
-#'   simulation parameters should be provided.
+#'   simulation parameters should be provided. Default is FALSE.
+#' @param parameter_type Character string specifying whether to use same or different
+#'   parameters for the two groups in simulation. Options are: "different", "same".
+#'   Default is "different".
 #' @param rho1 First correlation coefficient for simulation. Default is 0.5.
 #' @param rho2 Second correlation coefficient for simulation. Default is 0.7.
 #' @param T Depth parameter for simulation. Default is 6.
@@ -32,22 +35,37 @@
 #'                              coverage = 0.95,
 #'                              angle_method = "mean")
 #' 
-#' # Example 2: Run simulation
-#' sim_result <- tree_graph_analysis(simulate = TRUE,
-#'                                  rho1 = 0.3, 
-#'                                  rho2 = 0.7,
-#'                                  coverage = 0.9,
-#'                                  angle_method = "median")
+#' # Example 2: Run simulation with different parameters
+#' sim_result_diff <- tree_graph_analysis(
+#'   simulate = TRUE,
+#'   parameter_type = "different",
+#'   rho1 = 0.3, 
+#'   rho2 = 0.7
+#' )
+#'
+#' # Example 3: Run simulation with same parameters
+#' sim_result_same <- tree_graph_analysis(
+#'   simulate = TRUE,
+#'   parameter_type = "same",
+#'   rho1 = 0.3, 
+#'   rho2 = 0.7
+#' )
 #'
 #' @export
 #' @importFrom MASS mvrnorm
-tree_graph_analysis <- function(data = NULL, start = c(0, 0), 
+tree_graph_analysis <- function(data = NULL, 
+                                start = c(0, 0), 
                                 coverage = 0.95,
                                 angle_method = c("mean", "min", "median", "equal", "neigh"),
                                 simulate = FALSE,
-                                rho1 = 0.5, rho2 = 0.7,
-                                T = 6, N = 2, Tij = 1,
-                                n1 = 10, n2 = 100) {
+                                parameter_type = c("different", "same"),
+                                rho1 = 0.5, 
+                                rho2 = 0.7,
+                                T = 6, 
+                                N = 2, 
+                                Tij = 1,
+                                n1 = 10, 
+                                n2 = 100) {
   
   # Input validation
   if (!is.numeric(coverage) || coverage <= 0 || coverage >= 1) {
@@ -55,6 +73,7 @@ tree_graph_analysis <- function(data = NULL, start = c(0, 0),
   }
   
   angle_method <- match.arg(angle_method)
+  parameter_type <- match.arg(parameter_type)
   
   alpha <- 1 - coverage
   
@@ -64,7 +83,12 @@ tree_graph_analysis <- function(data = NULL, start = c(0, 0),
       stop("MASS package is required for simulation")
     }
     
-    result <- rho12func(rho1, rho2, T, N, Tij, n1, n2, alpha, start)
+    # Select simulation function based on parameter type
+    if (parameter_type == "different") {
+      result <- rho12func_diff(rho1, rho2, T, N, Tij, n1, n2, alpha, start)
+    } else {
+      result <- rho12func_same(rho1, rho2, T, N, Tij, n1, n2, alpha, start)
+    }
     return(result)
     
   } else {
@@ -114,11 +138,15 @@ tree_graph_analysis <- function(data = NULL, start = c(0, 0),
 #'
 #' @export
 #' @importFrom MASS mvrnorm
-generate_tree_data <- function(n_samples = 100, mu = c(0, 0), 
-                               sigma = c(1, 1), rho = 0.5) {
+generate_tree_data <- function(n_samples = 100, 
+                               mu = c(0, 0), 
+                               sigma = c(1, 1), 
+                               rho = 0.5) {
   
-  cov_matrix <- matrix(c(sigma[1], rho*sqrt(sigma[1]*sigma[2]),
-                         rho*sqrt(sigma[1]*sigma[2]), sigma[2]), 2, 2)
+  cov_matrix <- matrix(c(sigma[1], 
+                         rho * sqrt(sigma[1] * sigma[2]),
+                         rho * sqrt(sigma[1] * sigma[2]), 
+                         sigma[2]), 2, 2)
   
   data <- MASS::mvrnorm(n_samples, mu, cov_matrix)
   return(data)
